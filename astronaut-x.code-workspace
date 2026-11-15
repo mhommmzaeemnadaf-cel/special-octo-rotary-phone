@@ -1,0 +1,41 @@
+{
+  "folders": [
+    {
+      "name": "🚀 ASTRONAUT-X (Flight Deck)",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/node_modules": false,
+      "**/dist": false
+    },
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "tailwindCSS.experimental.classRegex": [
+      ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+      ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+    ],
+    "workbench.colorCustomizations": {
+      "titleBar.activeBackground": "#080B12",
+      "titleBar.activeForeground": "#F5F1E8",
+      "activityBar.background": "#101827",
+      "activityBar.foreground": "#C65B43",
+      "statusBar.background": "#C65B43",
+      "statusBar.foreground": "#FFFFFF"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "bradlc.vscode-tailwindcss",
+      "formulahendry.auto-rename-tag",
+      "dsznajder.es7-react-js-snippets"
+    ]
+  }
+}

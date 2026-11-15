@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MARS — Junior Astronaut Mission Trainer | NASA Space Apps 2026 Presentation</title>
+  
+  <!-- Typography: Space Grotesk, Inter, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --space-black: #080B12;
+      --midnight-navy: #101827;
+      --mars-terracotta: #C65B43;
+      --mars-glow: #FF7B59;
+      --warm-white: #F5F1E8;
+      --muted-grey: #9298A3;
+      --telemetry-cyan: #38BDF8;
+      --telemetry-green: #34D399;
+      --telemetry-amber: #FBBF24;
+      --telemetry-red: #F87171;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--space-black);
+      color: var(--warm-white);
+      font-family: 'Inter', -apple-system, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Ambient Film Grain & Telemetry Grid */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .atmospheric-glow {
+      position: fixed;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(198, 91, 67, 0.15) 0%, rgba(8, 11, 18, 0) 70%);
+      top: -200px;
+      right: -200px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Presentation Header */
+    header {
+      position: relative;
+      z-index: 20;
+      height: 60px;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(8, 11, 18, 0.85);
+      backdrop-filter: blur(12px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(198, 91, 67, 0.2);
+      border: 1px solid rgba(198, 91, 67, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .badge-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--mars-terracotta);
+      box-shadow: 0 0 10px var(--mars-terracotta);
+    }
+
+    .brand-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      letter-spacing: 2px;
+      font-size: 14px;
+    }
+
+    .brand-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted-grey);
+      letter-spacing: 1px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-tool {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--warm-white);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-tool:hover {
+      background: rgba(198, 91, 67, 0.2);
+      border-color: var(--mars-terracotta);
+      color: #fff;
+    }
+
+    .btn-tool.active {
+      background: var(--mars-terracotta);
+      border-color: var(--mars-terracotta);
+      color: #fff;
+    }
+
+    /* Main Stage */
+    main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 32px;
+    }
+
+    /* 16:9 Widescreen Deck Canvas */
+    .deck-container {
+      position: relative;
+      width: 100%;
+      max-width: 1280px;
+      aspect-ratio: 16 / 9;
+      background: rgba(16, 24, 39, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 50px rgba(198, 91, 67, 0.15);
+      backdrop-filter: blur(20px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 48px 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      transform: translateY(15px) scale(0.99);
+      pointer-events: none;
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    /* Slide Typography */
+    .slide-category {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(198, 91, 67, 0.15);
+      border: 1px solid rgba(198, 91, 67, 0.4);
+      color: var(--mars-terracotta);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .slide-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+      line-height: 1.05;
+      margin-bottom: 8px;
+    }
+
+    .slide-subtitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--mars-glow);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .slide-quote {
+      font-size: 15px;
+      color: var(--muted-grey);
+      font-style: italic;
+      font-weight: 300;
+      margin-bottom: 24px;
+      max-width: 850px;
+      line-height: 1.5;
+    }
+
+    /* Slide Content Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: rgba(8, 11, 18, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px;
+      transition: border-color 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(198, 91, 67, 0.4);
+    }
+
+    .card-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--mars-terracotta);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--warm-white);
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--muted-grey);
+      line-height: 1.5;
+      font-weight: 300;
+    }
+
+    /* Member Badge Box */
+    .member-card {
+      background: rgba(8, 11, 18, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .member-role {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--telemetry-cyan);
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .member-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .member-focus {
+      font-size: 11px;
+      color: var(--muted-grey);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .member-tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--telemetry-cyan);
+    }
+
+    /* Metric callout */
+    .metric-big {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(32px, 3.5vw, 48px);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--warm-white), var(--mars-terracotta));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+
+    .metric-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted-grey);
+      letter-spacing: 1px;
+    }
+
+    /* Footer & Navigation Controls */
+    footer {
+      position: relative;
+      z-index: 20;
+      height: 64px;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(8, 11, 18, 0.85);
+      backdrop-filter: blur(12px);
+    }
+
+    .slide-indicator {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted-grey);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .progress-bar-wrap {
+      width: 140px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--mars-terracotta);
+      transition: width 0.3s ease;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-nav {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--warm-white);
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-nav:hover {
+      background: rgba(198, 91, 67, 0.3);
+      border-color: var(--mars-terracotta);
+      color: #fff;
+    }
+
+    .btn-nav.primary {
+      background: var(--mars-terracotta);
+      border-color: var(--mars-terracotta);
+      box-shadow: 0 0 20px rgba(198, 91, 67, 0.4);
+    }
+
+    .btn-nav.primary:hover {
+      background: #b04a34;
+      box-shadow: 0 0 30px rgba(198, 91, 67, 0.6);
+    }
+
+    /* Presenter Notes Overlay */
+    .notes-drawer {
+      position: absolute;
+      bottom: 64px;
+      left: 0;
+      right: 0;
+      max-height: 180px;
+      background: rgba(8, 11, 18, 0.95);
+      border-top: 1px solid rgba(198, 91, 67, 0.5);
+      backdrop-filter: blur(16px);
+      padding: 20px 48px;
+      z-index: 30;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .notes-drawer.open {
+      transform: translateY(0);
+    }
+
+    .notes-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--mars-terracotta);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .notes-text {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--warm-white);
+      font-weight: 300;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        overflow: visible;
+        background: #080B12 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      header, footer, .notes-drawer, .bg-grid, .atmospheric-glow {
+        display: none !important;
+      }
+      main {
+        padding: 0;
+        display: block;
+      }
+      .deck-container {
+        border: none;
+        box-shadow: none;
+        max-width: 100%;
+        height: auto;
+      }
+      .slide {
+        position: relative !important;
+        opacity: 1 !important;
+        transform: none !important;
+        page-break-after: always;
+        height: 100vh;
+        border-bottom: 2px solid #C65B43;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient visual layers -->
+  <div class="bg-grid"></div>
+  <div class="atmospheric-glow"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="badge-icon">
+        <div class="badge-dot"></div>
+      </div>
+      <div>
+        <div class="brand-title">MARS / MISSION 01</div>
+        <div class="brand-sub">NASA SPACE APPS CHALLENGE 2026</div>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <button class="btn-tool" id="btnNotes" onclick="toggleNotes()" title="Toggle Speaker Notes [N]">
+        <span>📝</span> NOTES [N]
+      </button>
+      <button class="btn-tool" id="btnAudio" onclick="toggleAudio()" title="Sound FX [M]">
+        <span>🔊</span> AUDIO [M]
+      </button>
+      <button class="btn-tool" onclick="window.print()" title="Print / Save Slides to PDF">
+        <span>🖨️</span> EXPORT PDF
+      </button>
+      <a href="http://localhost:3000" target="_blank" class="btn-tool" title="Open Live Website Simulator">
+        <span>🚀</span> LIVE SIMULATOR ↗
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Presentation Stage -->
+  <main>
+    <div class="deck-container">
+
+      <!-- SLIDE 1: COVER -->
+      <div class="slide active" data-slide="0">
+        <div>
+          <div class="slide-category">EXPEDITION TITLE BRIEFING</div>
+          <h1 class="slide-title">MARS — JUNIOR ASTRONAUT<br>MISSION TRAINER</h1>
+          <div class="slide-subtitle">THE NEXT GIANT LEAP BEGINS WITH YOU</div>
+          <p class="slide-quote">“An extraordinary journey beyond Earth. Discover the challenges, make critical decisions, and experience life as an astronaut on Mars.”</p>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-num">01 / TRACK</div>
+            <div class="card-title">NASA Space Apps 2026</div>
+            <div class="card-desc">Planetary Science & Aerospace Education Challenge.</div>
+          </div>
+          <div class="card">
+            <div class="card-num">02 / CORE TECH</div>
+            <div class="card-title">Three.js + React 19</div>
+            <div class="card-desc">100% procedural 3D globe & Web Audio soundscape.</div>
+          </div>
+          <div class="card">
+            <div class="card-num">03 / SIMULATION</div>
+            <div class="card-title">Jezero Crater Hab Alpha</div>
+            <div class="card-desc">Physics-based Sky Crane EDL & MOXIE life-support.</div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono'; font-size:11px; color:var(--muted-grey);">
+          <span>COORDINATES: 18.38° N, 77.58° E (JEZERO BASIN)</span>
+          <span>4-MEMBER ENGINEERING CREW</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 2: THE SCIENTIFIC CHALLENGE -->
+      <div class="slide" data-slide="1">
+        <div>
+          <div class="slide-category">THE SCIENTIFIC CHALLENGE</div>
+          <h2 class="slide-title">THE HOSTILE MARTIAN REALITY</h2>
+          <div class="slide-subtitle">SURVIVAL BEYOND EARTH IS A MATHEMATICAL TRIAGE</div>
+          <p class="slide-quote">Mars is an unforgiving desert world where simple mechanical failures become life-threatening emergencies.</p>
+        </div>
+
+        <div class="grid-4">
+          <div class="card">
+            <div class="metric-big">738 Pa</div>
+            <div class="metric-sub">SURFACE PRESSURE</div>
+            <div class="card-desc" style="margin-top:10px;">0.72% of Earth sea level. Bodily fluids boil instantly without a pressurized 29.6 kPa suit.</div>
+          </div>
+          <div class="card">
+            <div class="metric-big">95.3%</div>
+            <div class="metric-sub">CARBON DIOXIDE</div>
+            <div class="card-desc" style="margin-top:10px;">Unbreathable atmosphere requiring continuous MOXIE solid-oxide catalytic electrolysis.</div>
+          </div>
+          <div class="card">
+            <div class="metric-big">0.38 g</div>
+            <div class="metric-sub">SURFACE GRAVITY</div>
+            <div class="card-desc" style="margin-top:10px;">Rapid bone density loss requires 2.5 hours of daily resistance exercise counter-measures.</div>
+          </div>
+          <div class="card">
+            <div class="metric-big">14m 22s</div>
+            <div class="metric-sub">RADIO LATENCY</div>
+            <div class="card-desc" style="margin-top:10px;">Speed-of-light delay prevents Houston from assisting in real time; astronauts must make autonomous choices.</div>
+          </div>
+        </div>
+
+        <div class="card" style="background:rgba(198,91,67,0.1); border-color:rgba(198,91,67,0.3);">
+          <div class="card-title" style="color:var(--mars-glow);">THE PEDAGOGICAL MISSION</div>
+          <div class="card-desc">Instead of reading static textbooks, students take the captain's seat, experiencing real NASA aerospace engineering firsthand.</div>
+        </div>
+      </div>
+
+      <!-- SLIDE 3: TEAM DIVISION -->
+      <div class="slide" data-slide="2">
+        <div>
+          <div class="slide-category">EXPEDITION ENGINEERING TEAM</div>
+          <h2 class="slide-title">MEET THE 4-MEMBER CREW</h2>
+          <div class="slide-subtitle">CROSS-DISCIPLINARY COOPERATION ACROSS SCIENCE & CODE</div>
+          <p class="slide-quote">Every member owned a dedicated engineering domain to bring this world-class simulation to life.</p>
+        </div>
+
+        <div class="grid-4">
+          <div class="member-card">
+            <div>
+              <div class="member-role">MEMBER 1</div>
+              <div class="member-name">3D WebGL Lead</div>
+              <div class="member-focus">Engineered the Three.js 3D Mars globe, procedural crater albedo, and 3-channel spectral sensors.</div>
+            </div>
+            <div class="member-tag">THREE.JS / SHADERS</div>
+          </div>
+
+          <div class="member-card">
+            <div>
+              <div class="member-role">MEMBER 2</div>
+              <div class="member-name">UI/UX & Audio Lead</div>
+              <div class="member-focus">Designed the Apple/A24 HUD visual system & synthesized procedural Martian wind noise in Web Audio.</div>
+            </div>
+            <div class="member-tag">WEB AUDIO / TAILWIND</div>
+          </div>
+
+          <div class="member-card">
+            <div>
+              <div class="member-role">MEMBER 3</div>
+              <div class="member-name">Planetary Scientist</div>
+              <div class="member-focus">Integrated NASA PDS & Perseverance MEDA weather station with real-time orbital latency algorithms.</div>
+            </div>
+            <div class="member-tag">NASA DATA / TELEMETRY</div>
+          </div>
+
+          <div class="member-card">
+            <div>
+              <div class="member-role">MEMBER 4</div>
+              <div class="member-name">Flight Simulation Lead</div>
+              <div class="member-focus">Coded the Sky Crane "7 Minutes of Terror" descent physics loop, MOXIE calibration, & certification.</div>
+            </div>
+            <div class="member-tag">PHYSICS / GAME ENGINE</div>
+          </div>
+        </div>
+
+        <div style="font-family:'JetBrains Mono'; font-size:11px; color:var(--muted-grey);">
+          COLLABORATIVE REPOSITORY • FULLY MODULAR COMPONENT ARCHITECTURE
+        </div>
+      </div>
+
+      <!-- SLIDE 4: MEMBER 1 DEEP-DIVE (3D GLOBE) -->
+      <div class="slide" data-slide="3">
+        <div>
+          <div class="slide-category">MEMBER 1 TECHNICAL SHOWCASE</div>
+          <h2 class="slide-title">3D PROCEDURAL MARS & SENSORS</h2>
+          <div class="slide-subtitle">REAL-TIME WEBGL RENDERING WITH ZERO EXTERNAL 3D ASSETS</div>
+          <p class="slide-quote">“By generating planetary topography procedurally, our application loads in under 1 second without downloading 40MB models.”</p>
+        </div>
+
+        <div class="grid-2">
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <div class="card">
+              <div class="card-title">3 Spectral Sensor Modes</div>
+              <div class="card-desc">
+                • <strong>Natural Albedo:</strong> High-res basalt plains, Olympus Mons caldera, and layered polar caps.<br>
+                • <strong>MOLA Elevation:</strong> Topographic false-color altitude (-8 km Hellas to +21.9 km peak).<br>
+                • <strong>THEMIS Thermal:</strong> Night-side infrared thermal emission revealing bedrock.
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">Rayleigh Atmospheric Shader</div>
+              <div class="card-desc">Custom GLSL Fresnel shader calculates solar angle to project an authentic orange-to-indigo atmospheric scattering rim.</div>
+            </div>
+          </div>
+
+          <div class="card" style="background:#0c121d; border-color:var(--telemetry-cyan);">
+            <div class="card-num" style="color:var(--telemetry-cyan);">ORBITAL CAMERA FLY-TO</div>
+            <div class="card-title">Spherical Coordinate Interpolation</div>
+            <div class="card-desc" style="margin-bottom:14px;">Clicking Jezero Crater, Olympus Mons, or Valles Marineris computes spherical coordinates (φ, θ) and smoothly translates camera position and rotation matrix.</div>
+            <div class="member-tag" style="background:rgba(56,189,248,0.2);">ACESFilmicToneMapping • 60 FPS LOCKED</div>
+          </div>
+        </div>
+
+        <div style="font-family:'JetBrains Mono'; font-size:11px; color:var(--muted-grey);">
+          THREE.JS SPHERE (RADIUS 1.75) • DUAL-LAYER CLOUD DRIFT • MRO SATELLITE TRAJECTORY
+        </div>
+      </div>
+
+      <!-- SLIDE 5: MEMBER 2 DEEP-DIVE (DESIGN & AUDIO) -->
+      <div class="slide" data-slide="4">
+        <div>
+          <div class="slide-category">MEMBER 2 TECHNICAL SHOWCASE</div>
+          <h2 class="slide-title">NATIVE PROCEDURAL AUDIO & HUD</h2>
+          <div class="slide-subtitle">100% CLIENT-SIDE SYNTHESIS & CINEMATIC DESIGN SYSTEM</div>
+          <p class="slide-quote">“We didn't use a single MP3 file. Every sound—from the sub-bass drone to the Martian wind—is synthesized in real time via Web Audio API.”</p>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-num">01 / MARTIAN WIND</div>
+            <div class="card-title">Perseverance Acoustic Profile</div>
+            <div class="card-desc">Pink/brown noise buffer routed through dynamic bandpass filters with LFO modulation mimicking real NASA Mars microphone recordings.</div>
+          </div>
+          <div class="card">
+            <div class="card-num">02 / BINAURAL DRONE</div>
+            <div class="card-title">48 Hz Cosmic Sub-Bass</div>
+            <div class="card-desc">Deep spatial sine waves and 96 Hz harmonics create an immersive feeling of desolate interplanetary space.</div>
+          </div>
+          <div class="card">
+            <div class="card-num">03 / QUINDAR TONES</div>
+            <div class="card-title">2525 Hz Apollo/Artemis Beeps</div>
+            <div class="card-desc">Authentic telemetry communication beeps and thruster rumble bursts provide tactile acoustic feedback on every interaction.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">EXPEDITIONARY ROVER BLUEPRINT (ROVEREXPLORER.JSX)</div>
+          <div class="card-desc">Interactive vector engineering schematic allowing cadets to click and inspect the MMRTG nuclear generator, Rocker-Bogie 6-wheel suspension, Mastcam-Z lasers, and robotic coring drill.</div>
+        </div>
+
+        <div style="font-family:'JetBrains Mono'; font-size:11px; color:var(--muted-grey);">
+          HTML5 WEB AUDIO API • ANALYSERNODE FFT DATA • RESPONSIVE TAILWIND CSS V4
+        </div>
+      </div>
+
+      <!-- SLIDE 6: MEMBER 3 DEEP-DIVE (PLANETARY SCIENCE) -->
+      <div class="slide" data-slide="5">
+        <div>
+          <div class="slide-category">MEMBER 3 TECHNICAL SHOWCASE</div>
+          <h2 class="slide-title">NASA PDS TELEMETRY & ORBITAL LINK</h2>
+          <div class="slide-subtitle">VERIFIED ENVIRONMENTAL DATASETS FROM JEZERO CRATER</div>
+          <p class="slide-quote">“Every weather reading and latency figure is mathematically tied to real Keplerian orbits and JPL MEDA instruments.”</p>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-num">MEDA SENSORS</div>
+            <div class="card-title">Diurnal Pressure Cycle</div>
+            <div class="card-desc">Models real atmospheric pressure swings at 738 Pa driven by polar CO₂ sublimation, with air temps from -18°C down to -84°C.</div>
+          </div>
+          <div class="card">
+            <div class="card-num">TIME RECKONING</div>
+            <div class="card-title">Live LMST Sol Clock</div>
+            <div class="card-desc">A live ticking Martian Local Solar Time clock calibrated to the authentic 24h 39m 35.244s Sol day length at Jezero Crater.</div>
+          </div>
+          <div class="card">
+            <div class="card-num">ORBITAL MECHANICS</div>
+            <div class="card-title">Speed-of-Light Latency</div>
+            <div class="card-desc">Live Earth-Mars distance calculator (225M+ km) showing round-trip radio packet lag with an interactive "Ping Mars" simulator.</div>
+          </div>
+        </div>
+
+        <div class="card" style="background:#0c121d;">
+          <div class="card-num" style="color:var(--telemetry-green);">SCIENTIFIC INTEGRITY</div>
+          <div class="card-title">Comparative Planetary Matrix</div>
+          <div class="card-desc">Side-by-side scientific comparison of Earth vs. Mars covering gravity, scale height, atmospheric density, and natural moons (Phobos & Deimos).</div>
+        </div>
+
+        <div style="font-family:'JetBrains Mono'; font-size:11px; color:var(--muted-grey);">
+          SOURCES: NASA PLANETARY DATA SYSTEM (PDS) • JPL MARS 2020 • INVERSE SQUARE PROPAGATION
+        </div>
+      </div>
+
+      <!-- SLIDE 7: MEMBER 4 DEEP-DIVE (FLIGHT SIMULATOR) -->
+      <div class="slide" data-slide="6">
+        <div>
+          <div class="slide-category">MEMBER 4 TECHNICAL SHOWCASE</div>
+          <h2 class="slide-title">THE 6-STAGE FLIGHT SIMULATOR</h2>
+          <div class="slide-subtitle">PHYSICS-BASED SKY CRANE EDL & MOXIE LIFE-SUPPORT TRIAGE</div>
+          <p class="slide-quote">“I built a numerical physics loop that lets students experience the legendary '7 Minutes of Terror' landing sequence.”</p>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-num">STAGE 02 / EDL</div>
+            <div class="card-title">Sky Crane Throttle Loop</div>
+            <div class="card-desc">10Hz delta-time physics engine: cadets throttle retro-thrusters against 0.38g gravity to achieve a soft touchdown (&lt; 3.5 m/s).</div>
+          </div>
+          <div class="card">
+            <div class="card-num">STAGE 03 / ECLSS</div>
+            <div class="card-title">Tactile MOXIE Boot</div>
+            <div class="card-desc">Interactive hardware toggles for Sabatier loops, CO₂ scrubbers, and Kilopower reactor with 800°C MOXIE thermal calibration.</div>
+          </div>
+          <div class="card">
+            <div class="card-num">STAGE 04 / RADAR</div>
+            <div class="card-title">Jezero Delta Navigation</div>
+            <div class="card-desc">Vector radar map of Jezero delta where cadets navigate from Octavia E. Butler landing site to seal rock core samples.</div>
+          </div>
+        </div>
+
+        <div class="card" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3);">
+          <div class="card-title" style="color:var(--telemetry-green);">STAGE 06: OFFICIAL FLIGHT CREDENTIALS</div>
+          <div class="card-desc">Generates a museum-grade personalized NASA Space Apps 2026 Junior Astronaut Certificate with verification hash, printable CSS, and confetti celebration.</div>
+        </div>
+
+        <div style="font-family:'JetBrains Mono'; font-size:11px; color:var(--muted-grey);">
+          DISCRETE NUMERICAL INTEGRATION (F=ma) • BRANCHING CRISIS DECISION MATRIX • CANVAS-CONFETTI
+        </div>
+      </div>
+
+      <!-- SLIDE 8: SUMMARY & CONCLUSION -->
+      <div class="slide" data-slide="7">
+        <div>
+          <div class="slide-category">CONCLUSION & COMPETITION SUMMARY</div>
+          <h2 class="slide-title">THE NEXT GIANT LEAP IS READY</h2>
+          <div class="slide-subtitle">EDUCATIONAL IMPACT • TECHNICAL PURITY • SCIENTIFIC ACCURACY</div>
+          <p class="slide-quote">“Mars needs engineers, biologists, pilots, and leaders. This project gives every student their first taste of that future.”</p>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-num">01 / ZERO BARRIERS</div>
+            <div class="card-title">100% Open & Offline</div>
+            <div class="card-desc">No accounts, no paywalls, no backend servers. Runs in any browser from smartphones to Chromebooks.</div>
+          </div>
+          <div class="card">
+            <div class="card-num">02 / AWWWARDS GRADE</div>
+            <div class="card-title">Cinematic UI & Sound</div>
+            <div class="card-desc">Combines Apple minimalism, A24 storytelling, and NASA telemetry with procedural Web Audio synthesis.</div>
+          </div>
+          <div class="card">
+            <div class="card-num">03 / STEM EMPOWERMENT</div>
+            <div class="card-title">Inspiring Cadets Globally</div>
+            <div class="card-desc">Turns complex aerospace calculations into hands-on exploration that inspires lifelong passion for space exploration.</div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:16px;">
+          <div style="font-family:'Space Grotesk'; font-size:18px; font-weight:700; color:var(--warm-white);">
+            MARS — JUNIOR ASTRONAUT MISSION TRAINER
+          </div>
+          <div style="font-family:'JetBrains Mono'; font-size:12px; color:var(--telemetry-green);">
+            NASA SPACE APPS CHALLENGE 2026 • READY FOR JUDGING
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Presenter Notes Drawer -->
+  <div class="notes-drawer" id="notesDrawer">
+    <div class="notes-title">SPEAKER NOTES // SLIDE <span id="notesSlideNum">1</span></div>
+    <div class="notes-text" id="notesContent">Loading notes...</div>
+  </div>
+
+  <!-- Footer Navigation -->
+  <footer>
+    <div class="slide-indicator">
+      <span>SLIDE <strong id="curSlideNum" style="color:var(--warm-white)">1</strong> OF <strong id="totalSlideNum">8</strong></span>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressBar" style="width: 12.5%;"></div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn-nav" onclick="prevSlide()" id="btnPrev">← PREV</button>
+      <button class="btn-nav primary" onclick="nextSlide()" id="btnNext">NEXT →</button>
+    </div>
+  </footer>
+
+  <script>
+    const SLIDES_COUNT = 8;
+    let currentSlide = 0;
+    let audioEnabled = false;
+    let audioCtx = null;
+
+    const NOTES = [
+      "HOOK & INTRO: Greet the judges. Introduce the project name and vision: moving away from static dashboards to create an A24-cinematic, Apple-refined flight simulator that makes Mars exploration tangible.",
+      "THE PROBLEM: Explain why Mars is scientifically hostile (738 Pa pressure causes liquids to boil, 95.3% CO2 requires MOXIE, 14-min communication latency forces autonomous crew decision-making).",
+      "TEAM CREW: Introduce the 4-member cross-disciplinary team structure. Point out that each member has full ownership over a critical engineering domain.",
+      "MEMBER 1 (3D WebGL): Explain how procedural textures and Rayleigh atmospheric scattering shaders deliver high-resolution 3D planetary rendering in under 1MB with zero external asset lag.",
+      "MEMBER 2 (Audio & Design): Highlight the procedural Web Audio API engine. Emphasize that wind and Quindar tones are synthesized via code in real time based on Perseverance rover recordings.",
+      "MEMBER 3 (Planetary Science): Walk through the live Jezero Crater weather station, the LMST Sol clock, and how the orbital calculator measures the 14-minute speed-of-light radio delay.",
+      "MEMBER 4 (Flight Simulator): Demonstrate the physics-based Sky Crane EDL retro-rocket descent loop, MOXIE life-support calibration, Jezero delta radar, and official flight certification.",
+      "CONCLUSION: Summarize educational impact. Reiterate that the platform is 100% open, offline-capable, and designed to inspire the next generation of astronauts. Open the floor for questions!"
+    ];
+
+    function updateSlide() {
+      const slides = document.querySelectorAll('.slide');
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === currentSlide);
+      });
+
+      document.getElementById('curSlideNum').innerText = currentSlide + 1;
+      document.getElementById('totalSlideNum').innerText = SLIDES_COUNT;
+      document.getElementById('progressBar').style.width = ((currentSlide + 1) / SLIDES_COUNT * 100) + '%';
+      
+      document.getElementById('notesSlideNum').innerText = currentSlide + 1;
+      document.getElementById('notesContent').innerText = NOTES[currentSlide] || "No notes for this slide.";
+
+      document.getElementById('btnPrev').disabled = (currentSlide === 0);
+      document.getElementById('btnNext').innerText = (currentSlide === SLIDES_COUNT - 1) ? 'FINISH' : 'NEXT →';
+
+      playSlideBeep();
+    }
+
+    function nextSlide() {
+      if (currentSlide < SLIDES_COUNT - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function toggleNotes() {
+      const drawer = document.getElementById('notesDrawer');
+      const btn = document.getElementById('btnNotes');
+      drawer.classList.toggle('open');
+      btn.classList.toggle('active');
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      const btn = document.getElementById('btnAudio');
+      btn.classList.toggle('active', audioEnabled);
+      if (audioEnabled) {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        playSlideBeep(880);
+      }
+    }
+
+    function playSlideBeep(freq = 587) {
+      if (!audioEnabled || !audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.06);
+      } catch (e) {}
+    }
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'n' || e.key === 'N') {
+        toggleNotes();
+      } else if (e.key === 'm' || e.key === 'M') {
+        toggleAudio();
+      }
+    });
+
+    // Initialize
+    updateSlide();
+  </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "name": "mars-junior-astronaut",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "MARS — Junior Astronaut Mission Trainer | NASA Space Apps Challenge 2026",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "nasa",
+    "mars",
+    "space-apps-challenge",
+    "threejs",
+    "astronaut-trainer",
+    "react",
+    "tailwind"
+  ],
+  "author": "Space Apps Innovation Team",
+  "license": "MIT",
+  "dependencies": {
+    "canvas-confetti": "^1.9.4",
+    "framer-motion": "^12.42.0",
+    "lucide-react": "^1.66.0",
+    "pptxgenjs": "^4.0.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/three": "^0.187.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "autoprefixer": "^10.6.2",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.3.5"
+  }
+}
